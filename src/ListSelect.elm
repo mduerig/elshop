@@ -1,12 +1,14 @@
-module ListSelect exposing (Model, Msg, init, view)
+module ListSelect exposing (ShoppingList, Config, Model, init, view)
 
 import Browser
-import Html exposing (Html, a, button, div, h1, input, text)
+import Html exposing (Attribute, Html, a, button, div, h1, input, text)
 import Html.Attributes exposing (href)
+import Html.Events exposing (onClick, onInput)
 
 
 type alias Model =
     { lists : List ShoppingList
+    , newList : Maybe String
     }
 
 
@@ -15,38 +17,66 @@ type alias ShoppingList =
     }
 
 
-type Msg
-    = Foo Int
-    | Bar String
-
+type alias Config msg =
+    { onChange : Model -> msg
+    , onSelect : ShoppingList -> msg
+    }
 
 init : Model
-init = Model [ ShoppingList "list one", ShoppingList "list two"]
+init =
+    { lists = [ ShoppingList "list one", ShoppingList "list two" ]
+    , newList = Nothing
+    }
 
 
-view : Model -> Browser.Document Msg
-view model =
+view : Config msg -> Model -> Browser.Document msg
+view config model =
     { title = "Elm Shopping"
     , body =
         [ h1 [] [ text "Elm Shopping" ]
         , div [] [ text "Choose or create shopping list" ]
-        , existingLists model
-        , newList model
+        , existingLists config model
+        , newList config model
         ]
     }
 
-existingLists : Model -> Html Msg
-existingLists model =
-    div [] (List.map toListItem model.lists)
 
-toListItem : ShoppingList -> Html Msg
-toListItem shoppingList =
-    div [] [ a [ href "" ] [ text shoppingList.name ]]
+existingLists : Config msg -> Model -> Html msg
+existingLists config model =
+    let
+        toListItem list =
+            div [ onClick (config.onSelect list) ] [ a [ href "" ] [ text list.name ]]
+    in
+        div [] (List.map toListItem model.lists)
 
 
-newList : Model -> Html Msg
-newList model =
+newList : Config msg -> Model -> Html msg
+newList config model =
     div []
-        [ input [] []
-        , button [] [ text "create" ]
+        [ input [ onNewListName config model ] []
+        , button [ onNewListCreate config model ] [ text "create" ]
         ]
+
+
+onNewListName : Config msg -> Model -> Attribute msg
+onNewListName config model =
+    let
+        updateName name =
+            config.onChange { model | newList = Just name }
+    in
+        onInput updateName
+
+
+onNewListCreate : Config msg -> Model -> Attribute msg
+onNewListCreate config model =
+    let
+        updatedLists =
+            case model.newList of
+                Just name ->
+                    ShoppingList name :: model.lists
+
+                Nothing ->
+                    model.lists
+    in
+        onClick ( config.onChange { model | lists = updatedLists } )
+
