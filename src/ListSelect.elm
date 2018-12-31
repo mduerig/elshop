@@ -1,31 +1,30 @@
-module ListSelect exposing (ShoppingList, Config, Model, init, view)
+module ListSelect exposing (Config, Model, init, view)
 
 import Browser
 import Html exposing (Attribute, Html, a, button, div, h1, input, text)
 import Html.Attributes exposing (href)
 import Html.Events exposing (onClick, onInput)
+import ShoppingList exposing (ShoppingList)
 
 
 type alias Model =
     { lists : List ShoppingList
     , newList : Maybe String
-    }
-
-
-type alias ShoppingList =
-    { name : String
+    , error : Maybe String
     }
 
 
 type alias Config msg =
     { onChange : Model -> msg
-    , onSelect : ShoppingList -> msg
+    , onSelect : (List ShoppingList) -> ShoppingList -> msg
     }
 
-init : Model
-init =
-    { lists = [ ShoppingList "list one", ShoppingList "list two" ]
+
+init : List ShoppingList -> Model
+init lists =
+    { lists = lists
     , newList = Nothing
+    , error = Nothing
     }
 
 
@@ -37,6 +36,7 @@ view config model =
         , div [] [ text "Choose or create shopping list" ]
         , existingLists config model
         , newList config model
+        , showError model
         ]
     }
 
@@ -45,7 +45,7 @@ existingLists : Config msg -> Model -> Html msg
 existingLists config model =
     let
         toListItem list =
-            div [ onClick (config.onSelect list) ] [ a [ href "" ] [ text list.name ]]
+            div [ onClick (config.onSelect model.lists list) ] [ a [ href "" ] [ text list.name ]]
     in
         div [] (List.map toListItem model.lists)
 
@@ -62,7 +62,14 @@ onNewListName : Config msg -> Model -> Attribute msg
 onNewListName config model =
     let
         updateName name =
-            config.onChange { model | newList = Just name }
+            config.onChange { model
+                | newList = Just name
+                , error =
+                    if listExists name model.lists then
+                        Just ("List exists: " ++ name)
+                    else
+                        Nothing
+                }
     in
         onInput updateName
 
@@ -73,10 +80,29 @@ onNewListCreate config model =
         updatedLists =
             case model.newList of
                 Just name ->
-                    ShoppingList name :: model.lists
+                    if listExists name model.lists then
+                        model.lists
+                    else
+                        ShoppingList.newList name :: model.lists
 
                 Nothing ->
                     model.lists
     in
         onClick ( config.onChange { model | lists = updatedLists } )
 
+
+listExists : String -> List ShoppingList -> Bool
+listExists newListName lists =
+    lists
+        |> List.map .name
+        >> List.any ((==) newListName)
+
+
+showError : Model -> Html msg
+showError model =
+    case model.error of
+        Just errorMsg ->
+            div [] [ text errorMsg ]
+
+        Nothing ->
+            div [] []
