@@ -2,7 +2,7 @@ module ListEdit exposing (Config, Model, init, view)
 
 import Browser
 import Html exposing (Attribute, Html, a, button, div, h1, input, text)
-import Html.Attributes exposing (checked, href, type_)
+import Html.Attributes exposing (checked, href, type_, value)
 import Html.Events exposing (onClick, onInput)
 import ShoppingList exposing (ShoppingList)
 import Bootstrap.Grid as Grid
@@ -12,7 +12,7 @@ import Bootstrap.CDN as CDN
 type alias Model =
     { list : ShoppingList
     , newItem : Maybe String
-    ,error : Maybe String
+    , error : Maybe String
     }
 
 
@@ -83,7 +83,7 @@ onItemClick config model item =
 addItem : Config msg -> Model -> Html msg
 addItem config model =
     div []
-        [ input [ onNewItemName config model ] []
+        [ input [ onNewItemName config model, value (Maybe.withDefault "" model.newItem) ] []
         , button [ onNewItemCreate config model ] [ text "create" ]
         ]
 
@@ -107,18 +107,24 @@ onNewItemName config model =
 onNewItemCreate : Config msg -> Model -> Attribute msg
 onNewItemCreate config model =
     let
-        updatedLists =
+        (updatedLists, newItemInput) =
             case model.newItem of
                 Just name ->
                     if itemExists name model.list then
-                        model.list
+                        (model.list, Just name)
                     else
-                        ShoppingList.addItem model.list name
+                        (ShoppingList.addItem model.list name, Nothing)
 
                 Nothing ->
-                    model.list
+                    (model.list, Nothing)
     in
-        onClick ( config.onChange { model | list = updatedLists } )
+        onClick
+            ( config.onChange
+                { model
+                | list = updatedLists
+                , newItem = newItemInput
+                }
+            )
 
 
 selectList : Config msg -> Model -> Html msg

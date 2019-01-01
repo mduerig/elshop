@@ -2,7 +2,7 @@ module ListSelect exposing (Config, Model, init, view)
 
 import Browser
 import Html exposing (Attribute, Html, a, button, div, h1, input, text)
-import Html.Attributes exposing (href)
+import Html.Attributes exposing (href, value)
 import Html.Events exposing (onClick, onInput)
 import ShoppingList exposing (ShoppingList)
 import Bootstrap.CDN as CDN
@@ -76,7 +76,7 @@ existingLists config model =
 newList : Config msg -> Model -> Html msg
 newList config model =
     div []
-        [ input [ onNewListName config model ] []
+        [ input [ onNewListName config model, value (Maybe.withDefault "" model.newList) ] [ ]
         , button [ onNewListCreate config model ] [ text "create" ]
         ]
 
@@ -100,18 +100,23 @@ onNewListName config model =
 onNewListCreate : Config msg -> Model -> Attribute msg
 onNewListCreate config model =
     let
-        updatedLists =
+        (updatedLists, newInput) =
             case model.newList of
                 Just name ->
                     if listExists name model.lists then
-                        model.lists
+                        (model.lists, Just name)
                     else
-                        ShoppingList.newList name :: model.lists
+                        (ShoppingList.newList name :: model.lists, Nothing)
 
                 Nothing ->
-                    model.lists
+                    (model.lists, Nothing)
     in
-        onClick ( config.onChange { model | lists = updatedLists } )
+        onClick
+            ( config.onChange { model
+                | lists = updatedLists
+                , newList = newInput
+                }
+            )
 
 
 listExists : String -> List ShoppingList -> Bool
