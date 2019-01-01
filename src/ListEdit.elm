@@ -2,7 +2,7 @@ module ListEdit exposing (Config, Model, init, view)
 
 import Browser
 import Html exposing (Attribute, Html, a, button, div, h1, input, text)
-import Html.Attributes exposing (checked, href, type_, value)
+import Html.Attributes exposing (autofocus, checked, href, type_, value)
 import Html.Events exposing (onClick, onInput)
 import ShoppingList exposing (ShoppingList)
 import Bootstrap.Grid as Grid
@@ -59,13 +59,13 @@ items : Config msg -> Model -> Html msg
 items config model =
     let
         toListItem item = div []
-            [ text item.name
-            , input
+            [ input
                 [ type_ "checkbox"
                 , checked item.checked
                 , onItemClick config model item.name
                 ]
                 []
+            , text item.name
             ]
     in
         div []
@@ -88,7 +88,7 @@ addItem : Config msg -> Model -> Html msg
 addItem config model =
     div []
         [ input [ onNewItemName config model, value (Maybe.withDefault "" model.newItem) ] []
-        , button [ onNewItemCreate config model ] [ text "create" ]
+        , button [ onNewItemCreate config model ] [ text "add" ]
         ]
 
 
