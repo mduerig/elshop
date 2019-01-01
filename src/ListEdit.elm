@@ -9,6 +9,7 @@ import Bootstrap.Grid as Grid
 import Bootstrap.Utilities.Border as Border
 import Bootstrap.CDN as CDN
 import Bootstrap.Alert as Alert
+import Bootstrap.Button as Button
 
 type alias Model =
     { list : ShoppingList
@@ -87,10 +88,24 @@ onItemClick config model item =
 
 addItem : Config msg -> Model -> Html msg
 addItem config model =
-    div []
-        [ input [ onNewItemName config model, value (Maybe.withDefault "" model.newItem) ] []
-        , button [ onNewItemCreate config model ] [ text "add" ]
-        ]
+    let
+        disable =
+            case model.error of
+                Just _ ->
+                    True
+
+                _ ->
+                    model.newItem == Nothing || model.newItem == Just ""
+    in
+        div []
+            [ input [ onNewItemName config model, value (Maybe.withDefault "" model.newItem) ] []
+            , Button.button
+                [ Button.disabled disable
+                , Button.primary
+                , onNewItemCreate config model
+                ]
+                [ text "add" ]
+            ]
 
 
 onNewItemName : Config msg -> Model -> Attribute msg
@@ -109,7 +124,7 @@ onNewItemName config model =
         onInput updateName
 
 
-onNewItemCreate : Config msg -> Model -> Attribute msg
+onNewItemCreate : Config msg -> Model -> Button.Option msg
 onNewItemCreate config model =
     let
         (updatedLists, newItemInput) =
@@ -123,7 +138,7 @@ onNewItemCreate config model =
                 Nothing ->
                     (model.list, Nothing)
     in
-        onClick
+        Button.onClick
             ( config.onChange
                 { model
                 | list = updatedLists
