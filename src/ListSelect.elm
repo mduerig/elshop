@@ -5,7 +5,10 @@ import Html exposing (Attribute, Html, a, button, div, h1, input, text)
 import Html.Attributes exposing (href)
 import Html.Events exposing (onClick, onInput)
 import ShoppingList exposing (ShoppingList)
-
+import Bootstrap.CDN as CDN
+import Bootstrap.Grid as Grid
+import Bootstrap.Grid.Col as Col
+import Bootstrap.Utilities.Border as Border
 
 type alias Model =
     { lists : List ShoppingList
@@ -32,14 +35,34 @@ view : Config msg -> Model -> Browser.Document msg
 view config model =
     { title = "Elm Shopping"
     , body =
-        [ h1 [] [ text "Elm Shopping" ]
-        , div [] [ text "Choose or create shopping list" ]
-        , existingLists config model
-        , newList config model
-        , showError model
+        [ Grid.container
+            [ Border.all, Border.rounded ]
+            [ Grid.row
+                [ ]
+                [ Grid.col
+                    [ ]
+                    [ CDN.stylesheet
+                    , h1 [] [ text "Elm Shopping" ]
+                    , div [] [ text "Choose or create shopping list" ]
+                    , existingLists config model
+                    , newList config model
+                    , showError model
+                    ]
+                ]
+            ]
         ]
     }
 
+test1 : Html msg
+test1 =
+    Grid.container []
+        [ CDN.stylesheet -- creates an inline style node with the Bootstrap CSS
+        , Grid.row []
+            [ Grid.col []
+                [ text "Some content for my view here..."]
+            ]
+
+        ]
 
 existingLists : Config msg -> Model -> Html msg
 existingLists config model =

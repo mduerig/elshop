@@ -5,7 +5,9 @@ import Html exposing (Attribute, Html, a, button, div, h1, input, text)
 import Html.Attributes exposing (checked, href, type_)
 import Html.Events exposing (onClick, onInput)
 import ShoppingList exposing (ShoppingList)
-
+import Bootstrap.Grid as Grid
+import Bootstrap.Utilities.Border as Border
+import Bootstrap.CDN as CDN
 
 type alias Model =
     { list : ShoppingList
@@ -32,12 +34,22 @@ view : Config msg -> Model -> Browser.Document msg
 view config model =
     { title = "Elm Shopping"
     , body =
-        [ h1 [] [ text "Elm Shopping" ]
-        , div [] [ text ("Shopping list " ++ model.list.name) ]
-        , items config model
-        , addItem config model
-        , selectList config model
-        , showError model
+        [ Grid.container
+            [ Border.all, Border.rounded ]
+            [ Grid.row
+                [ ]
+                [ Grid.col
+                    [ ]
+                    [ CDN.stylesheet
+                    , h1 [] [ text "Elm Shopping" ]
+                    , div [] [ text ("Shopping list " ++ model.list.name) ]
+                    , items config model
+                    , addItem config model
+                    , selectList config model
+                    , showError model
+                    ]
+                ]
+            ]
         ]
     }
 
