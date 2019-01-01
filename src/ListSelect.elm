@@ -9,6 +9,7 @@ import Bootstrap.CDN as CDN
 import Bootstrap.Grid as Grid
 import Bootstrap.Grid.Col as Col
 import Bootstrap.Utilities.Border as Border
+import Bootstrap.Alert as Alert
 
 type alias Model =
     { lists : List ShoppingList
@@ -134,7 +135,7 @@ showError : Model -> Html msg
 showError model =
     case model.error of
         Just errorMsg ->
-            div [] [ text errorMsg ]
+            Alert.simpleDanger [] [ text errorMsg ]
 
         Nothing ->
             div [] []
