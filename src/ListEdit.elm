@@ -68,7 +68,11 @@ items config model =
                 []
             ]
     in
-        div [] (List.map toListItem model.list.items)
+        div []
+            ( model.list.items
+                |> List.reverse
+                >> List.map toListItem
+            )
 
 
 onItemClick : Config msg -> Model -> String -> Attribute msg

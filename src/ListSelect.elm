@@ -70,7 +70,11 @@ existingLists config model =
         toListItem list =
             div [ onClick (config.onSelect model.lists list) ] [ a [ href "" ] [ text list.name ]]
     in
-        div [] (List.map toListItem model.lists)
+        div []
+            ( model.lists
+                |> List.reverse
+                >> List.map toListItem
+            )
 
 
 newList : Config msg -> Model -> Html msg
