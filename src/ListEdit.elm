@@ -1,7 +1,7 @@
 module ListEdit exposing (Config, Model, init, view)
 
 import Browser
-import Html exposing (Attribute, Html, a, button, div, h1, input, text)
+import Html exposing (Attribute, Html, a, button, div, h1, input, label, text)
 import Html.Attributes exposing (autofocus, checked, href, type_, value)
 import Html.Events exposing (onClick, onInput)
 import ShoppingList exposing (ShoppingList)
@@ -10,6 +10,7 @@ import Bootstrap.Utilities.Border as Border
 import Bootstrap.CDN as CDN
 import Bootstrap.Alert as Alert
 import Bootstrap.Button as Button
+import Bootstrap.Form.Checkbox as Checkbox
 
 type alias Model =
     { list : ShoppingList
@@ -61,13 +62,11 @@ items : Config msg -> Model -> Html msg
 items config model =
     let
         toListItem item = div []
-            [ input
-                [ type_ "checkbox"
-                , checked item.checked
-                , onItemClick config model item.name
-                ]
-                []
-            , text item.name
+            [ item.name |>
+                Checkbox.checkbox
+                    [ Checkbox.checked item.checked
+                    , onItemClick config model item.name
+                    ]
             ]
     in
         div []
@@ -77,13 +76,13 @@ items config model =
             )
 
 
-onItemClick : Config msg -> Model -> String -> Attribute msg
+onItemClick : Config msg -> Model -> String -> Checkbox.Option msg
 onItemClick config model item =
     let
         updatedLists =
             ShoppingList.checkItem model.list item
     in
-        onClick ( config.onChange { model | list = updatedLists } )
+        Checkbox.onCheck (\_ -> ( config.onChange { model | list = updatedLists } ))
 
 
 addItem : Config msg -> Model -> Html msg
