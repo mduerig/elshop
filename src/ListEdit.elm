@@ -11,6 +11,8 @@ import Bootstrap.CDN as CDN
 import Bootstrap.Alert as Alert
 import Bootstrap.Button as Button
 import Bootstrap.Form.Checkbox as Checkbox
+import Bootstrap.Form.Input as Input
+
 
 type alias Model =
     { list : ShoppingList
@@ -37,21 +39,15 @@ view : Config msg -> Model -> Browser.Document msg
 view config model =
     { title = "Elm Shopping"
     , body =
-        [ Grid.container
+        [ CDN.stylesheet
+        , Grid.container
             [ Border.all, Border.rounded ]
-            [ Grid.row
-                [ ]
-                [ Grid.col
-                    [ ]
-                    [ CDN.stylesheet
-                    , h1 [] [ text "Elm Shopping" ]
-                    , div [] [ text ("Shopping list " ++ model.list.name) ]
-                    , items config model
-                    , addItem config model
-                    , selectList config model
-                    , showError model
-                    ]
-                ]
+            [ h1 [] [ text "Elm Shopping" ]
+            , div [] [ text ("Shopping list " ++ model.list.name) ]
+            , items config model
+            , addItem config model
+            , selectList config model
+            , showError model
             ]
         ]
     }
@@ -95,19 +91,32 @@ addItem config model =
 
                 _ ->
                     model.newItem == Nothing || model.newItem == Just ""
+
+        danger =
+            if model.error /= Nothing then
+                [ Input.danger ]
+            else
+                []
     in
-        div []
-            [ input [ onNewItemName config model, value (Maybe.withDefault "" model.newItem) ] []
-            , Button.button
-                [ Button.disabled disable
-                , Button.primary
-                , onNewItemCreate config model
+        Grid.row []
+            [ Grid.col []
+                [ Input.text (
+                    [ onNewItemName config model
+                    , Input.value (Maybe.withDefault "" model.newItem)
+                    ] ++ danger )
                 ]
-                [ text "add" ]
+            , Grid.col []
+                [ Button.button
+                    [ Button.disabled disable
+                    , Button.primary
+                    , onNewItemCreate config model
+                    ]
+                    [ text "add" ]
+                ]
             ]
 
 
-onNewItemName : Config msg -> Model -> Attribute msg
+onNewItemName : Config msg -> Model -> Input.Option msg
 onNewItemName config model =
     let
         updateName name =
@@ -120,7 +129,7 @@ onNewItemName config model =
                     Nothing
             }
     in
-        onInput updateName
+        Input.onInput updateName
 
 
 onNewItemCreate : Config msg -> Model -> Button.Option msg
@@ -140,8 +149,8 @@ onNewItemCreate config model =
         Button.onClick
             ( config.onChange
                 { model
-                | list = updatedLists
-                , newItem = newItemInput
+                    | list = updatedLists
+                    , newItem = newItemInput
                 }
             )
 

@@ -11,6 +11,8 @@ import Bootstrap.Grid.Col as Col
 import Bootstrap.Utilities.Border as Border
 import Bootstrap.Alert as Alert
 import Bootstrap.Button as Button
+import Bootstrap.Form.Input as Input
+import Bootstrap.Grid.Col as Col
 
 type alias Model =
     { lists : List ShoppingList
@@ -37,20 +39,14 @@ view : Config msg -> Model -> Browser.Document msg
 view config model =
     { title = "Elm Shopping"
     , body =
-        [ Grid.container
+        [ CDN.stylesheet
+        , Grid.container
             [ Border.all, Border.rounded ]
-            [ Grid.row
-                [ ]
-                [ Grid.col
-                    [ ]
-                    [ CDN.stylesheet
-                    , h1 [] [ text "Elm Shopping" ]
-                    , div [] [ text "Choose or create shopping list" ]
-                    , existingLists config model
-                    , newList config model
-                    , showError model
-                    ]
-                ]
+            [ h1 [] [ text "Elm Shopping" ]
+            , text "Choose or create shopping list"
+            , existingLists config model
+            , newList config model
+            , showError model
             ]
         ]
     }
@@ -89,19 +85,32 @@ newList config model =
 
                 _ ->
                     model.newList == Nothing || model.newList == Just ""
+
+        danger =
+            if model.error /= Nothing then
+                [ Input.danger ]
+            else
+                []
     in
-        div []
-            [ input [ onNewListName config model, value (Maybe.withDefault "" model.newList) ] [ ]
-            , Button.button
-                [ Button.disabled disable
-                , Button.primary
-                , onNewListCreate config model
+        Grid.row []
+            [ Grid.col [ ]
+                [ Input.text (
+                    [ Input.value (Maybe.withDefault "" model.newList)
+                    , onNewListName config model
+                    ] ++ danger )
                 ]
-                [ text "create" ]
+            , Grid.col [ ]
+                [ Button.button
+                    [ Button.disabled disable
+                    , Button.primary
+                    , onNewListCreate config model
+                    ]
+                    [ text "create" ]
+                ]
             ]
 
 
-onNewListName : Config msg -> Model -> Attribute msg
+onNewListName : Config msg -> Model -> Input.Option msg
 onNewListName config model =
     let
         updateName name =
@@ -114,7 +123,7 @@ onNewListName config model =
                         Nothing
                 }
     in
-        onInput updateName
+        Input.onInput updateName
 
 
 onNewListCreate : Config msg -> Model -> Button.Option msg
