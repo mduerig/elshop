@@ -1,4 +1,11 @@
-module ShoppingList exposing (ShoppingList, newList, addItem, checkItem)
+module ShoppingList exposing
+    ( ShoppingList
+    , newList
+    , addItem
+    , checkItem
+    , itemCount
+    , checkedItemCount
+    )
 
 type alias ShoppingList =
     { name : String
@@ -40,3 +47,17 @@ checkItem list itemName =
             List.map (check itemName) list.items
     in
         { list | items = newItems }
+
+
+itemCount : ShoppingList -> Int
+itemCount shoppingList =
+    List.length shoppingList.items
+
+
+checkedItemCount : ShoppingList -> Int
+checkedItemCount shoppingList =
+    let
+        isChecked item = item.checked
+    in
+        List.filter isChecked shoppingList.items
+            |> List.length

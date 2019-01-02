@@ -14,6 +14,9 @@ import Bootstrap.Button as Button
 import Bootstrap.Form.Input as Input
 import Bootstrap.Grid.Col as Col
 import Bootstrap.Modal as Modal
+import Bootstrap.ListGroup as ListGroup
+import Bootstrap.Badge as Badge
+import Bootstrap.Utilities.Flex as Flex
 
 
 type alias Model =
@@ -60,16 +63,37 @@ existingLists : Config msg -> Model -> Html msg
 existingLists config model =
     let
         toListItem list =
-            div
-                [ onClick (config.onSelect model.lists list) ]
-                [ a [ href "" ] [ text list.name ]]
+            ListGroup.anchor
+                [ ListGroup.attrs
+                     [ onClick ( config.onSelect model.lists list)
+                     , Flex.block, Flex.justifyBetween, Flex.alignItemsCenter
+                     ]
+                ]
+                [ a [ href "" ] [ text list.name ]
+                , Badge.pillInfo [] [ listInfo list ]
+                ]
     in
-        div []
+        ListGroup.custom
             ( model.lists
                 |> List.reverse
                 >> List.map toListItem
             )
 
+
+listInfo : ShoppingList -> Html msg
+listInfo shoppingList =
+    let
+        totalItems =
+            shoppingList
+                |> ShoppingList.checkedItemCount
+                |> String.fromInt
+
+        checkedItems =
+            shoppingList
+                |> ShoppingList.itemCount
+                |> String.fromInt
+    in
+        text (totalItems ++ " / " ++ checkedItems)
 
 newListButton : Config msg -> Model -> Html msg
 newListButton config model =
