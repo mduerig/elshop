@@ -78,13 +78,10 @@ existingLists config model =
 newList : Config msg -> Model -> Html msg
 newList config model =
     let
-        disable =
-            case model.error of
-                Just _ ->
-                    True
-
-                _ ->
-                    model.newList == Nothing || model.newList == Just ""
+        disable
+            =  model.error /= Nothing
+            || model.newList == Nothing
+            || model.newList == Just ""
 
         danger =
             if model.error /= Nothing then

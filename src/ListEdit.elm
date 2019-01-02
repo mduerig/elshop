@@ -84,13 +84,10 @@ onItemClick config model item =
 addItem : Config msg -> Model -> Html msg
 addItem config model =
     let
-        disable =
-            case model.error of
-                Just _ ->
-                    True
-
-                _ ->
-                    model.newItem == Nothing || model.newItem == Just ""
+        disable
+            =  model.error /= Nothing
+            || model.newItem == Nothing
+            || model.newItem == Just ""
 
         danger =
             if model.error /= Nothing then
@@ -147,10 +144,9 @@ onNewItemCreate config model =
                     (model.list, Nothing)
     in
         Button.onClick
-            ( config.onChange
-                { model
-                    | list = updatedLists
-                    , newItem = newItemInput
+            ( config.onChange { model
+                | list = updatedLists
+                , newItem = newItemInput
                 }
             )
 
