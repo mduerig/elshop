@@ -1,7 +1,7 @@
 module ListSelect exposing (Config, Model, init, view)
 
 import Browser
-import Html exposing (Attribute, Html, a, button, div, h1, input, text)
+import Html exposing (Attribute, Html, a, button, div, h1, input, p, text)
 import Html.Attributes exposing (href, value)
 import Html.Events exposing (onClick, onInput)
 import ShoppingList exposing (ShoppingList)
@@ -13,11 +13,14 @@ import Bootstrap.Alert as Alert
 import Bootstrap.Button as Button
 import Bootstrap.Form.Input as Input
 import Bootstrap.Grid.Col as Col
+import Bootstrap.Modal as Modal
+
 
 type alias Model =
     { lists : List ShoppingList
     , newList : Maybe String
     , error : Maybe String
+    , modal : Modal.Visibility
     }
 
 
@@ -32,6 +35,7 @@ init lists =
     { lists = lists
     , newList = Nothing
     , error = Nothing
+    , modal = Modal.hidden
     }
 
 
@@ -45,28 +49,20 @@ view config model =
             [ h1 [] [ text "Elm Shopping" ]
             , text "Choose or create shopping list"
             , existingLists config model
-            , newList config model
-            , showError model
+            , newListButton config model
+            , newListModalDialog config model
             ]
         ]
     }
 
-test1 : Html msg
-test1 =
-    Grid.container []
-        [ CDN.stylesheet -- creates an inline style node with the Bootstrap CSS
-        , Grid.row []
-            [ Grid.col []
-                [ text "Some content for my view here..."]
-            ]
-
-        ]
 
 existingLists : Config msg -> Model -> Html msg
 existingLists config model =
     let
         toListItem list =
-            div [ onClick (config.onSelect model.lists list) ] [ a [ href "" ] [ text list.name ]]
+            div
+                [ onClick (config.onSelect model.lists list) ]
+                [ a [ href "" ] [ text list.name ]]
     in
         div []
             ( model.lists
@@ -75,14 +71,42 @@ existingLists config model =
             )
 
 
-newList : Config msg -> Model -> Html msg
-newList config model =
-    let
-        disable
-            =  model.error /= Nothing
-            || model.newList == Nothing
-            || model.newList == Just ""
+newListButton : Config msg -> Model -> Html msg
+newListButton config model =
+    Button.button
+        [ Button.onClick
+            ( config.onChange { model
+                  | modal = Modal.shown
+                  }
+            )
+        ]
+        [ text "Create a Shopping list"]
 
+
+newListModalDialog : Config msg -> Model -> Html msg
+newListModalDialog config model =
+    Modal.config (cancelModal config model)
+        |> Modal.large
+        |> Modal.hideOnBackdropClick False
+        |> Modal.h3 [] [ text "New Shopping List" ]
+        |> Modal.body []
+            [ newListTextBox config model
+            , showError model
+            ]
+        |> Modal.footer []
+            [ Button.button
+                [ Button.outlinePrimary
+                , Button.attrs [ onClick (cancelModal config model) ]
+                ]
+                [ text "Cancel" ]
+            , okButton config model
+            ]
+        |> Modal.view model.modal
+
+
+newListTextBox : Config msg -> Model -> Html msg
+newListTextBox config model =
+    let
         danger =
             if model.error /= Nothing then
                 [ Input.danger ]
@@ -96,31 +120,27 @@ newList config model =
                     , onNewListName config model
                     ] ++ danger )
                 ]
-            , Grid.col [ ]
-                [ Button.button
-                    [ Button.disabled disable
-                    , Button.primary
-                    , onNewListCreate config model
-                    ]
-                    [ text "create" ]
-                ]
             ]
 
 
-onNewListName : Config msg -> Model -> Input.Option msg
-onNewListName config model =
+cancelModal : Config msg -> Model -> msg
+cancelModal config model = config.onChange { model | modal = Modal.hidden }
+
+
+okButton : Config msg -> Model -> Html msg
+okButton config model =
     let
-        updateName name =
-            config.onChange { model
-                | newList = Just name
-                , error =
-                    if listExists name model.lists then
-                        Just ("List exists: " ++ name)
-                    else
-                        Nothing
-                }
+        disable
+            =  model.error /= Nothing
+            || model.newList == Nothing
+            || model.newList == Just ""
     in
-        Input.onInput updateName
+        Button.button
+            [ Button.primary
+            , Button.disabled disable
+            , onNewListCreate config model
+            ]
+            [ text "Create" ]
 
 
 onNewListCreate : Config msg -> Model -> Button.Option msg
@@ -141,8 +161,25 @@ onNewListCreate config model =
             ( config.onChange { model
                 | lists = updatedLists
                 , newList = newInput
+                , modal = Modal.hidden
                 }
             )
+
+
+onNewListName : Config msg -> Model -> Input.Option msg
+onNewListName config model =
+    let
+        updateName name =
+            config.onChange { model
+                | newList = Just name
+                , error =
+                    if listExists name model.lists then
+                        Just ("List exists already: " ++ name)
+                    else
+                        Nothing
+                }
+    in
+        Input.onInput updateName
 
 
 listExists : String -> List ShoppingList -> Bool
