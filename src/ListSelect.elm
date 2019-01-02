@@ -69,7 +69,7 @@ existingLists config model =
                      , Flex.block, Flex.justifyBetween, Flex.alignItemsCenter
                      ]
                 ]
-                [ a [ href "" ] [ text list.name ]
+                [ a [ href "#" ] [ text list.name ]
                 , Badge.pillInfo [] [ listInfo list ]
                 ]
     in

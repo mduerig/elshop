@@ -1,6 +1,6 @@
 module Main exposing (init, main)
 
-import Browser exposing (UrlRequest)
+import Browser exposing (Document, UrlRequest)
 import Browser.Navigation exposing (Key)
 import ListEdit
 import ListSelect
@@ -18,9 +18,7 @@ type alias Model =
 
 
 type Msg
-    = OnUrlChange Url
-    | OnUrlRequest UrlRequest
-    | OnListSelectChange ListSelect.Model
+    = OnListSelectChange ListSelect.Model
     | OnListSelect (List ShoppingList) ShoppingList
     | OnListChange ListEdit.Model
     | OnListEditExit ShoppingList
@@ -45,8 +43,8 @@ listEditConfig =
     }
 
 
-init : Flags -> Url -> Key -> ( Model, Cmd Msg )
-init flags url navKey =
+init : Flags -> ( Model, Cmd Msg )
+init flags =
     let
         lists =
             [ ShoppingList.addItem (ShoppingList.newList "list one")  "foo"
@@ -62,13 +60,11 @@ init flags url navKey =
 
 main : Program Flags Model Msg
 main =
-    Browser.application
+    Browser.document
         { init = init
         , view = view
         , update = update
         , subscriptions = subscriptions
-        , onUrlRequest = OnUrlRequest
-        , onUrlChange = OnUrlChange
         }
 
 
@@ -79,12 +75,6 @@ subscriptions model = Sub.none
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        OnUrlChange url ->
-            ( model, Cmd.none )
-
-        OnUrlRequest urlRequest ->
-            ( model, Cmd.none )
-
         OnListSelectChange listSelectModel ->
             ( { model
                 | page = ListSelect listSelectModel }
@@ -128,7 +118,7 @@ updateLists lists updatedList =
         List.map (updateList) lists
 
 
-view : Model -> Browser.Document Msg
+view : Model -> Document Msg
 view model =
     case model.page of
         ListSelect listSelectModel ->

@@ -165,7 +165,7 @@ selectList : Config msg -> Model -> Html msg
 selectList config model =
     div
         [ onClick (config.onExit model.list) ]
-        [ a [ href "" ] [ text "Back to shopping list selection" ] ]
+        [ a [ href "#" ] [ text "Back to shopping list selection" ] ]
 
 
 itemExists : String -> ShoppingList -> Bool
