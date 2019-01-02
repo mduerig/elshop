@@ -12,6 +12,7 @@ import Bootstrap.Alert as Alert
 import Bootstrap.Button as Button
 import Bootstrap.Form.Checkbox as Checkbox
 import Bootstrap.Form.Input as Input
+import Bootstrap.ListGroup as ListGroup
 
 
 type alias Model =
@@ -53,11 +54,17 @@ view config model =
     }
 
 
--- todo: gray checked items
 items : Config msg -> Model -> Html msg
 items config model =
     let
-        toListItem item = div []
+        attrs item =
+            if item.checked then
+                [ ListGroup.disabled ]
+            else
+                []
+
+        toListItem item = ListGroup.li
+            (attrs item)
             [ item.name |>
                 Checkbox.checkbox
                     [ Checkbox.checked item.checked
@@ -65,7 +72,7 @@ items config model =
                     ]
             ]
     in
-        div []
+        ListGroup.ul
             ( model.list.items
                 |> List.reverse
                 >> List.map toListItem
