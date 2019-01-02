@@ -1,9 +1,9 @@
 module ListEdit exposing (Config, Model, init, view)
 
 import Browser
-import Html exposing (Attribute, Html, a, button, div, h1, input, label, text)
-import Html.Attributes exposing (autofocus, checked, href, type_, value)
-import Html.Events exposing (onClick, onInput)
+import Html exposing (Html, a, div, h1, text)
+import Html.Attributes exposing (href)
+import Html.Events exposing (onClick)
 import ShoppingList exposing (ShoppingList)
 import Bootstrap.Grid as Grid
 import Bootstrap.Utilities.Border as Border
@@ -65,11 +65,11 @@ items config model =
 
         toListItem item = ListGroup.li
             (attrs item)
-            [ item.name |>
-                Checkbox.checkbox
-                    [ Checkbox.checked item.checked
-                    , onItemClick config model item.name
-                    ]
+            [ Checkbox.checkbox
+                [ Checkbox.checked item.checked
+                , onItemClick config model item.name
+                ]
+                item.name
             ]
     in
         ListGroup.ul
@@ -85,7 +85,8 @@ onItemClick config model item =
         updatedLists =
             ShoppingList.checkItem model.list item
     in
-        Checkbox.onCheck (\_ -> ( config.onChange { model | list = updatedLists } ))
+        Checkbox.onCheck <| \_ -> config.onChange
+            { model | list = updatedLists }
 
 
 addItem : Config msg -> Model -> Html msg
@@ -124,7 +125,8 @@ onNewItemName : Config msg -> Model -> Input.Option msg
 onNewItemName config model =
     let
         updateName name =
-            config.onChange { model
+            config.onChange
+            { model
             | newItem = Just name
             , error =
                 if itemExists name model.list then
@@ -151,7 +153,8 @@ onNewItemCreate config model =
                     (model.list, Nothing)
     in
         Button.onClick
-            ( config.onChange { model
+            ( config.onChange
+                { model
                 | list = updatedLists
                 , newItem = newItemInput
                 }

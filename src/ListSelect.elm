@@ -1,9 +1,9 @@
 module ListSelect exposing (Config, Model, init, view)
 
 import Browser
-import Html exposing (Attribute, Html, a, button, div, h1, input, p, text)
-import Html.Attributes exposing (href, value)
-import Html.Events exposing (onClick, onInput)
+import Html exposing (Html, a, div, h1, text)
+import Html.Attributes exposing (href)
+import Html.Events exposing (onClick)
 import ShoppingList exposing (ShoppingList)
 import Bootstrap.CDN as CDN
 import Bootstrap.Grid as Grid
@@ -65,7 +65,7 @@ existingLists config model =
         toListItem list =
             ListGroup.anchor
                 [ ListGroup.attrs
-                     [ onClick ( config.onSelect model.lists list)
+                     [ onClick <| config.onSelect model.lists list
                      , Flex.block, Flex.justifyBetween, Flex.alignItemsCenter
                      ]
                 ]
@@ -98,11 +98,8 @@ listInfo shoppingList =
 newListButton : Config msg -> Model -> Html msg
 newListButton config model =
     Button.button
-        [ Button.onClick
-            ( config.onChange { model
-                  | modal = Modal.shown
-                  }
-            )
+        [ Button.onClick <| config.onChange
+            { model | modal = Modal.shown }
         ]
         [ text "Create a Shopping list"]
 
@@ -148,7 +145,8 @@ newListTextBox config model =
 
 
 cancelModal : Config msg -> Model -> msg
-cancelModal config model = config.onChange { model | modal = Modal.hidden }
+cancelModal config model
+    = config.onChange { model | modal = Modal.hidden }
 
 
 okButton : Config msg -> Model -> Html msg
@@ -181,20 +179,20 @@ onNewListCreate config model =
                 Nothing ->
                     (model.lists, Nothing)
     in
-        Button.onClick
-            ( config.onChange { model
-                | lists = updatedLists
-                , newList = newInput
-                , modal = Modal.hidden
-                }
-            )
+        Button.onClick <| config.onChange
+            { model
+            | lists = updatedLists
+            , newList = newInput
+            , modal = Modal.hidden
+            }
 
 
 onNewListName : Config msg -> Model -> Input.Option msg
 onNewListName config model =
     let
         updateName name =
-            config.onChange { model
+            config.onChange
+                { model
                 | newList = Just name
                 , error =
                     if listExists name model.lists then

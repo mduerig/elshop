@@ -2,7 +2,6 @@ module Main exposing (init, main)
 
 import Browser exposing (UrlRequest)
 import Browser.Navigation exposing (Key)
-import Html
 import ListEdit
 import ListSelect
 import ShoppingList exposing (ShoppingList)
