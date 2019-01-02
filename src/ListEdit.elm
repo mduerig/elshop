@@ -13,6 +13,8 @@ import Bootstrap.Button as Button
 import Bootstrap.Form.Checkbox as Checkbox
 import Bootstrap.Form.Input as Input
 import Bootstrap.ListGroup as ListGroup
+import Bootstrap.Form.InputGroup as InputGroup
+import Bootstrap.Grid.Col as Col
 
 
 type alias Model =
@@ -102,22 +104,29 @@ addItem config model =
                 [ Input.danger ]
             else
                 []
+
+        textInputField =
+            InputGroup.text
+                (
+                [ Input.placeholder "New item"
+                , onNewItemName config model
+                , Input.value (Maybe.withDefault "" model.newItem)
+                ] ++ danger
+                )
+
+        addButton =
+            InputGroup.button
+                [ Button.disabled disable
+                , Button.primary
+                , onNewItemCreate config model
+                ]
+                [ text "Add"]
     in
         Grid.row []
-            [ Grid.col []
-                [ Input.text (
-                    [ Input.placeholder "New item"
-                    , onNewItemName config model
-                    , Input.value (Maybe.withDefault "" model.newItem)
-                    ] ++ danger )
-                ]
-            , Grid.col []
-                [ Button.button
-                    [ Button.disabled disable
-                    , Button.primary
-                    , onNewItemCreate config model
-                    ]
-                    [ text "add" ]
+            [ Grid.col [ ]
+                [ InputGroup.config textInputField
+                    |> InputGroup.successors [ addButton ]
+                    |> InputGroup.view
                 ]
             ]
 
