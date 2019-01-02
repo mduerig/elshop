@@ -50,7 +50,7 @@ init : Flags -> Url -> Key -> ( Model, Cmd Msg )
 init flags url navKey =
     let
         lists =
-            [ ShoppingList.newList "list one"
+            [ ShoppingList.addItem (ShoppingList.newList "list one")  "foo"
             , ShoppingList.newList "list two"
             ]
         model =
