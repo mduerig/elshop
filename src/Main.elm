@@ -46,6 +46,7 @@ listEditConfig =
 init : Flags -> ( Model, Cmd Msg )
 init flags =
     let
+        -- todo connect to back-end via offline safe background sync
         lists =
             [ ShoppingList.addItem (ShoppingList.newList "list one")  "foo"
             , ShoppingList.newList "list two"
