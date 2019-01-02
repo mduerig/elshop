@@ -98,7 +98,8 @@ listInfo shoppingList =
 newListButton : Config msg -> Model -> Html msg
 newListButton config model =
     Button.button
-        [ Button.onClick <| config.onChange
+        [ Button.primary
+        , Button.onClick <| config.onChange
             { model | modal = Modal.shown }
         ]
         [ text "Create a Shopping list"]
@@ -137,7 +138,8 @@ newListTextBox config model =
         Grid.row []
             [ Grid.col [ ]
                 [ Input.text (
-                    [ Input.value (Maybe.withDefault "" model.newList)
+                    [ Input.placeholder "Name of a new shopping list"
+                    , Input.value (Maybe.withDefault "" model.newList)
                     , onNewListName config model
                     ] ++ danger )
                 ]

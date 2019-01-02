@@ -106,7 +106,8 @@ addItem config model =
         Grid.row []
             [ Grid.col []
                 [ Input.text (
-                    [ onNewItemName config model
+                    [ Input.placeholder "New item"
+                    , onNewItemName config model
                     , Input.value (Maybe.withDefault "" model.newItem)
                     ] ++ danger )
                 ]
