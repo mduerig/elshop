@@ -102,7 +102,7 @@ newListButton config model =
         , Button.onClick <| config.onChange
             { model | modal = Modal.shown }
         ]
-        [ text "Create a Shopping list"]
+        [ text "Create a shopping list"]
 
 
 newListModalDialog : Config msg -> Model -> Html msg
