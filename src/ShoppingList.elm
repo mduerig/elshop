@@ -7,6 +7,7 @@ module ShoppingList exposing
     , checkedItemCount
     )
 
+
 type alias ShoppingList =
     { name : String
     , items : List Item
@@ -35,16 +36,17 @@ addItem list item =
 
 
 checkItem : ShoppingList -> String -> ShoppingList
-checkItem list itemName =
+checkItem list name =
     let
-        check name item =
+        checkName item =
             if (item.name == name) then
                 { item | checked = True }
             else
                 item
 
         newItems =
-            List.map (check itemName) list.items
+            list.items
+                |> List.map checkName
     in
         { list | items = newItems }
 
@@ -59,5 +61,6 @@ checkedItemCount shoppingList =
     let
         isChecked item = item.checked
     in
-        List.filter isChecked shoppingList.items
+        shoppingList.items
+            |> List.filter isChecked
             |> List.length

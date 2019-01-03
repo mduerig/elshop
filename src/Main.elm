@@ -43,6 +43,16 @@ listEditConfig =
     }
 
 
+main : Program Flags Model Msg
+main =
+    Browser.document
+        { init = init
+        , view = view
+        , update = update
+        , subscriptions = \_ -> Sub.none
+        }
+
+
 init : Flags -> ( Model, Cmd Msg )
 init flags =
     let
@@ -57,20 +67,6 @@ init flags =
             }
     in
         ( model , Cmd.none )
-
-
-main : Program Flags Model Msg
-main =
-    Browser.document
-        { init = init
-        , view = view
-        , update = update
-        , subscriptions = subscriptions
-        }
-
-
-subscriptions : Model -> Sub Msg
-subscriptions model = Sub.none
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )

@@ -21,7 +21,7 @@ import Bootstrap.Utilities.Flex as Flex
 
 type alias Model =
     { lists : List ShoppingList
-    , newList : Maybe String
+    , newListName : Maybe String
     , error : Maybe String
     , modal : Modal.Visibility
     }
@@ -29,14 +29,14 @@ type alias Model =
 
 type alias Config msg =
     { onChange : Model -> msg
-    , onSelect : (List ShoppingList) -> ShoppingList -> msg
+    , onSelect : List ShoppingList -> ShoppingList -> msg
     }
 
 
 init : List ShoppingList -> Model
 init lists =
     { lists = lists
-    , newList = Nothing
+    , newListName = Nothing
     , error = Nothing
     , modal = Modal.hidden
     }
@@ -65,7 +65,9 @@ existingLists config model =
         toListItem list =
             ListGroup.anchor
                 [ ListGroup.attrs
-                     [ onClick <| config.onSelect model.lists list
+                     [ onClick
+                        << config.onSelect model.lists
+                        <| list
                      , Flex.block, Flex.justifyBetween, Flex.alignItemsCenter
                      ]
                 ]
@@ -99,8 +101,9 @@ newListButton : Config msg -> Model -> Html msg
 newListButton config model =
     Button.button
         [ Button.primary
-        , Button.onClick <| config.onChange
-            { model | modal = Modal.shown }
+        , Button.onClick
+            << config.onChange
+            <| { model | modal = Modal.shown }
         ]
         [ text "Create a shopping list"]
 
@@ -118,7 +121,11 @@ newListModalDialog config model =
         |> Modal.footer []
             [ Button.button
                 [ Button.outlinePrimary
-                , Button.attrs [ onClick (cancelModal config model) ]
+                , Button.attrs
+                    [ onClick
+                        << cancelModal config
+                        <| model
+                    ]
                 ]
                 [ text "Cancel" ]
             , okButton config model
@@ -139,7 +146,7 @@ newListTextBox config model =
             [ Grid.col [ ]
                 [ Input.text (
                     [ Input.placeholder "Name of a new shopping list"
-                    , Input.value (Maybe.withDefault "" model.newList)
+                    , Input.value (Maybe.withDefault "" model.newListName)
                     , onNewListName config model
                     ] ++ danger )
                 ]
@@ -156,8 +163,8 @@ okButton config model =
     let
         disable
             =  model.error /= Nothing
-            || model.newList == Nothing
-            || model.newList == Just ""
+            || model.newListName == Nothing
+            || model.newListName == Just ""
     in
         Button.button
             [ Button.primary
@@ -171,7 +178,7 @@ onNewListCreate : Config msg -> Model -> Button.Option msg
 onNewListCreate config model =
     let
         (updatedLists, newInput) =
-            case model.newList of
+            case model.newListName of
                 Just name ->
                     if listExists name model.lists then
                         (model.lists, Just name)
@@ -181,10 +188,10 @@ onNewListCreate config model =
                 Nothing ->
                     (model.lists, Nothing)
     in
-        Button.onClick <| config.onChange
+        Button.onClick << config.onChange <|
             { model
             | lists = updatedLists
-            , newList = newInput
+            , newListName = newInput
             , modal = Modal.hidden
             }
 
@@ -195,7 +202,7 @@ onNewListName config model =
         updateName name =
             config.onChange
                 { model
-                | newList = Just name
+                | newListName = Just name
                 , error =
                     if listExists name model.lists then
                         Just ("List exists already: " ++ name)

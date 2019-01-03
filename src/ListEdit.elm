@@ -19,7 +19,7 @@ import Bootstrap.Grid.Col as Col
 
 type alias Model =
     { list : ShoppingList
-    , newItem : Maybe String
+    , newItemName : Maybe String
     , error : Maybe String
     }
 
@@ -33,7 +33,7 @@ type alias Config msg =
 init : ShoppingList -> Model
 init list =
     { list = list
-    , newItem = Nothing
+    , newItemName = Nothing
     , error = Nothing
     }
 
@@ -65,24 +65,25 @@ items config model =
             else
                 []
 
-        toListItem item = ListGroup.li
-            (attrs item)
-            [ Checkbox.checkbox
-                [ Checkbox.checked item.checked
-                , onItemClick config model item.name
+        toListItem item =
+            ListGroup.li
+                (attrs item)
+                [ Checkbox.checkbox
+                    [ Checkbox.checked item.checked
+                    , onItemClick item.name config model
+                    ]
+                    item.name
                 ]
-                item.name
-            ]
     in
         ListGroup.ul
             ( model.list.items
                 |> List.reverse
-                >> List.map toListItem
+                |> List.map toListItem
             )
 
 
-onItemClick : Config msg -> Model -> String -> Checkbox.Option msg
-onItemClick config model item =
+onItemClick : String -> Config msg -> Model -> Checkbox.Option msg
+onItemClick item config model =
     let
         updatedLists =
             ShoppingList.checkItem model.list item
@@ -96,8 +97,8 @@ addItem config model =
     let
         disable
             =  model.error /= Nothing
-            || model.newItem == Nothing
-            || model.newItem == Just ""
+            || model.newItemName == Nothing
+            || model.newItemName == Just ""
 
         danger =
             if model.error /= Nothing then
@@ -110,7 +111,7 @@ addItem config model =
                 (
                 [ Input.placeholder "New item"
                 , onNewItemName config model
-                , Input.value (Maybe.withDefault "" model.newItem)
+                , Input.value (Maybe.withDefault "" model.newItemName)
                 ] ++ danger
                 )
 
@@ -137,7 +138,7 @@ onNewItemName config model =
         updateName name =
             config.onChange
             { model
-            | newItem = Just name
+            | newItemName = Just name
             , error =
                 if itemExists name model.list then
                     Just ("Item exists: " ++ name)
@@ -152,7 +153,7 @@ onNewItemCreate : Config msg -> Model -> Button.Option msg
 onNewItemCreate config model =
     let
         (updatedLists, newItemInput) =
-            case model.newItem of
+            case model.newItemName of
                 Just name ->
                     if itemExists name model.list then
                         (model.list, Just name)
@@ -166,7 +167,7 @@ onNewItemCreate config model =
             ( config.onChange
                 { model
                 | list = updatedLists
-                , newItem = newItemInput
+                , newItemName = newItemInput
                 }
             )
 
@@ -174,7 +175,7 @@ onNewItemCreate config model =
 selectList : Config msg -> Model -> Html msg
 selectList config model =
     div
-        [ onClick (config.onExit model.list) ]
+        [ onClick << config.onExit <| model.list ]
         [ a [ href "#" ] [ text "Back to shopping list selection" ] ]
 
 
