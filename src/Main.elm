@@ -1,11 +1,9 @@
 module Main exposing (init, main)
 
 import Browser exposing (Document, UrlRequest)
-import Browser.Navigation exposing (Key)
 import ListEdit
 import ListSelect
 import ShoppingList exposing (ShoppingList)
-import Url exposing (Url)
 
 
 type alias Flags = { }

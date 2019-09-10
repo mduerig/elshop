@@ -7,12 +7,10 @@ import Html.Events exposing (onClick)
 import ShoppingList exposing (ShoppingList)
 import Bootstrap.CDN as CDN
 import Bootstrap.Grid as Grid
-import Bootstrap.Grid.Col as Col
 import Bootstrap.Utilities.Border as Border
 import Bootstrap.Alert as Alert
 import Bootstrap.Button as Button
 import Bootstrap.Form.Input as Input
-import Bootstrap.Grid.Col as Col
 import Bootstrap.Modal as Modal
 import Bootstrap.ListGroup as ListGroup
 import Bootstrap.Badge as Badge

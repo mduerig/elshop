@@ -14,7 +14,6 @@ import Bootstrap.Form.Checkbox as Checkbox
 import Bootstrap.Form.Input as Input
 import Bootstrap.ListGroup as ListGroup
 import Bootstrap.Form.InputGroup as InputGroup
-import Bootstrap.Grid.Col as Col
 
 
 type alias Model =
